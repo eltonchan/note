@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        /**
+        * 判断是否透明素材图
+        * @param {*} imgData imageData对象
+        */
+        const isTransparent = imgData => {
+            const { data, width, height } = imgData;
+            const length = width * height * 4;
+            // 每四个为一个像素点, 透明时都为0
+            for (let i = 0; i < length; i += 4) {
+                if (data[i + 3] < 255) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        // ctx.getImageData(0, 0, width, height) 本地测试有报跨域错误， 可以放到nginx的www文件里 用localhost:8080 访问
+        const getTransparentImg = url => new Promise((resolve, reject) => {
+            const canvas = document.querySelector('#canvas');
+            const ctx = canvas.getContext('2d');
+            const image = new Image();
+            image.src = url;
+            image.onload = function loadImg() {
+                const { width, height } = this;
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(this, 0, 0);
+                console.info('canvas', canvas);
+                console.info('ctx', ctx);
+                console.info('imageData', ctx.getImageData(0, 0, width, height));
+                resolve({
+                    canvas,
+                    ctx,
+                    imageData: ctx.getImageData(0, 0, width, height),
+                });
+            }
+            image.onerror = function imageError() {
+                reject();
+            };
+        });
+        getTransparentImg('./assets/1.png').then(res => {
+            const { imageData } = res;
+            const isPng = isTransparent(imageData);
+            console.info('isPng', isPng); // 图片是否是透明图
+        })
+    </script>
+</body>
+</html>
