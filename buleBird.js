@@ -33,9 +33,16 @@ map.then(res => {
     info('map', res); // map 123
 });
 
-Promise.map(mapArr, num => {
+let sum = Promise.map(mapArr, num => {
     return delay(num).then(res => res);
 }).then(res => {
     info('res2', res); // [1000, 2000, 3000]
+    return res.reduce((prev, curr) => { 
+        return prev + curr;
+    }, 0);
+});
+
+sum.then(s => {
+    info('sum', s); // 4000
 });
 
