@@ -33,6 +33,27 @@
             }
             return false;
         };
+
+        const dataURItoBlob = dataURI => {
+            // convert base64 to raw binary data held in a string
+            // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+            const byteString = atob(dataURI.split(',')[1]);
+
+            // separate out the mime component
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+            // write the bytes of the string to an ArrayBuffer
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i += 1) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+
+            return new Blob([ab], {
+                type: mimeString
+            });
+        };
+
         // ctx.getImageData(0, 0, width, height) 本地测试有报跨域错误， 可以放到nginx的www文件里 用localhost:8080 访问
         const getTransparentImg = url => new Promise((resolve, reject) => {
             const canvas = document.querySelector('#canvas');
@@ -44,12 +65,19 @@
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(this, 0, 0);
+                const data = canvas.toDataURL('image/png', 1.0); // base64 位数据
+                const formData = dataURItoBlob(data); // blob 二进制数据类型
+                canvas.toBlob(blob => {
+                    console.info('blob', blob); // blob === formData
+                });
+                console.info('formData', formData);
                 console.info('canvas', canvas);
                 console.info('ctx', ctx);
-                console.info('imageData', ctx.getImageData(0, 0, width, height));
+                // console.info('imageData', ctx.getImageData(0, 0, width, height));
                 resolve({
                     canvas,
                     ctx,
+                    blob: formData,
                     imageData: ctx.getImageData(0, 0, width, height),
                 });
             }
