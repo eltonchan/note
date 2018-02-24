@@ -30,6 +30,29 @@
     <canvas id="canvas"></canvas>
     <input type="range" id="range" class="range" value="1.0" min="0.5" max="3.0" step="0.1" />
     <script src="../utils.js"></script>
-    <script src="./index.js"></script>
+    <script>
+
+        const canvas = document.querySelector('#canvas');
+        const ctx = canvas.getContext('2d');
+        const range = document.querySelector('#range');
+
+        canvas.width = 600;
+        canvas.height = 600;
+        canvas.style.backgroundColor = '#ccc';
+
+        // 放大缩小功能
+        utils.loadImg('../assets/1.webp').then(image => {
+            const { width, height } = image;
+            range.onmousemove = function() {
+                const scale = range.value;
+                const imageWidth = width * scale;
+                const imageHeight = height * scale;
+                const dx = (canvas.width - imageWidth) / 2;
+                const dy = (canvas.height - imageHeight) / 2;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(image, dx, dy, imageWidth, imageHeight);
+            }
+    });
+    </script>
 </body>
 </html>
