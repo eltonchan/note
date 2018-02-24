@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html, body{
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            justify-content: center;
+            background: rgb(202, 219, 221);
+        }
+        .range{
+            display: block;
+            background: #19a;
+            width: 600px;
+            height: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <input type="range" id="range" class="range" value="1.0" min="0.5" max="3.0" step="0.1" />
+    <script src="../utils.js"></script>
+    <script>
+
+        const canvas = document.querySelector('#canvas');
+        const ctx = canvas.getContext('2d');
+        const markCanvas = document.createElement('canvas');
+        // document.body.appendChild(markCanvas);
+        const markCtx = markCanvas.getContext('2d');
+        const range = document.querySelector('#range');
+
+        canvas.width = 600;
+        canvas.height = 600;
+        markCanvas.width = 400;
+        markCanvas.height = 100;
+
+        canvas.style.backgroundColor = '#ccc';
+        markCtx.font = 'bold 40px Arial';
+        markCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        markCtx.textBaseline = 'middle';
+        markCtx.fillText('== jimmy ==', 20, 50);
+
+        // 放大缩小功能
+        utils.loadImg('../assets/1.webp').then(image => {
+            const { width, height } = image;
+            range.onmousemove = function() {
+                const scale = range.value;
+                const imageWidth = width * scale;
+                const imageHeight = height * scale;
+                const dx = (canvas.width - imageWidth) / 2;
+                const dy = (canvas.height - imageHeight) / 2;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(image, dx, dy, imageWidth, imageHeight);
+                ctx.drawImage(markCanvas, 0, 0, markCanvas.width, markCanvas.height);
+            }
+    });
+    </script>
+</body>
+</html>
