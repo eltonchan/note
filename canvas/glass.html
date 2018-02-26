@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html, body{
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            /* display: flex; */
+            /* align-items: center; */
+            /* flex-direction: column; */
+            /* justify-content: center; */
+            background: rgb(202, 219, 221);
+        }
+        canvas{
+            margin: 50px 100px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script src="../utils.js"></script>
+    <script>
+
+        const canvas = document.querySelector('#canvas');
+        const ctx = canvas.getContext('2d');
+        const offCanvas = document.createElement('canvas');
+        const offCtx = offCanvas.getContext('2d');
+        const range = document.querySelector('#range');
+        const bound = canvas.getBoundingClientRect();
+        let isMouseDown = false;
+        let scaleX = '';
+        let scaleY = '';
+        let img;
+
+        canvas.style.backgroundColor = '#ccc';
+
+        const getLocation = (dx, dy) => {
+            const x = dx - bound.left;
+            const y = dy - bound.top;
+            return {
+                x,
+                y
+            }
+        }
+
+        const drawMagnifier = (location) => {
+            let cx = location.x * scaleX;
+            let cy = location.y * scaleY;
+            const r = 100;
+            let sx = cx - r;
+            let sy = cy - r;
+            let dx = location.x - r;
+            let dy = location.y - r;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(location.x, location.y, r, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(offCanvas, sx, sy, 2 * r, 2 * r, dx, dy, 2 * r, 2 * r);
+            ctx.restore();
+        };
+
+        const drawImageWidthMagnifier = (location = {}, isShow = false) => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);                        
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            if (isShow) {
+                drawMagnifier(location);
+            }                      
+        };
+        
+        // 放大缩小功能
+        utils.loadImg('../assets/3.webp').then(image => {
+            const { width, height } = image;
+            img = image;
+            canvas.width = parseInt( width / 2);
+            canvas.height = parseInt( height / 2);
+            offCanvas.width = width;
+            offCanvas.height = height;
+            scaleX = parseInt(width / canvas.width);
+            scaleY = parseInt(height / canvas.height);
+
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);            
+            offCtx.drawImage(image, 0, 0, width, height);          
+        });
+
+        // 鼠标事件
+        canvas.onmousedown = function(e) {
+            e.preventDefault();
+            const location = getLocation(e.clientX, e.clientY);
+            isMouseDown = true;
+            drawImageWidthMagnifier(location, true);
+        }
+
+        canvas.onmousemove = function(e) {
+            e.preventDefault();
+            if (isMouseDown) { // 显示放大镜🔍
+                const location = getLocation(e.clientX, e.clientY);
+                drawImageWidthMagnifier(location, true);           
+            }
+        }
+
+        canvas.onmouseup = function(e) {
+            e.preventDefault();
+            isMouseDown = false;
+            drawImageWidthMagnifier();
+        }
+
+        canvas.onmouseout = function(e) {
+            e.preventDefault();
+            isMouseDown = false;
+            drawImageWidthMagnifier();
+        }
+    </script>
+</body>
+</html>
