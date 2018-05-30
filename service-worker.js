@@ -10,8 +10,8 @@ this.addEventListener('install', function(event) {
   var urlsToPrefetch = [
     // '/',
     './index.html',
-    './assets/3.webp',
-    './assets/4.webp',
+    './3.jpg',
+    './4.jpg',
     './two.html'
   ];
 
