@@ -8,11 +8,11 @@ this.addEventListener('install', function(event) {
   // self.skipWaiting();
   //需要缓存的页面资源
   var urlsToPrefetch = [
-    '/',
-    '/index.html',
+    // '/',
+    './index.html',
     './assets/3.webp',
     './assets/4.webp',
-    '/two.html'
+    './two.html'
   ];
 
   event.waitUntil(
